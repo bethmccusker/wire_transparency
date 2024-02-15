@@ -32,8 +32,10 @@
   gROOT->cd(0);
   TH2F *x_y_Hit_1_South = new TH2F("xy1","xy1",70, -360, 360, 70, -360, 360);
   TH2F *x_y_Hit_1_North = new TH2F("xy2","xy2",70, -360, 360, 70, -360, 360);
-  TH2F *x_y_Hit_2_South = new TH2F("xy3","xy3",70, -360, 360, 70, -360, 360);
-  TH2F *x_y_Hit_2_North = new TH2F("xy4","xy4",70, -360, 360, 70, -360, 360);
+  TH2F *x_y_Hit_2_South_TPC1 = new TH2F("xy3","xy3",70, -360, 0, 70, -360, 0);
+  TH2F *x_y_Hit_2_North_TPC1 = new TH2F("xy4","xy4",70, -360, 0, 70, -360, 0);
+  TH2F *x_y_Hit_2_South_TPC2 = new TH2F("xy7","xy7",70, 0, 360, 70, 0, 360);
+  TH2F *x_y_Hit_2_North_TPC2 = new TH2F("xy8","xy8",70, 0, 360, 70, 0, 360);
   TH2F *x_z_Hit_1_Bottom = new TH2F("xz1","xz1",70, -420, 420, 70, -200, 800);
   TH2F *x_z_Hit_2_Bottom = new TH2F("xz2","xz2",70, -420, 420, 70, -200, 800);
   TH2F *x_y_AllHits_South = new TH2F("xy5","xy5",70, -360, 360, 70, -360, 360);
@@ -42,20 +44,46 @@
   int nEntries = myTree->GetEntries(); // Get the number of entries in this tree
   for (int iEnt = 0; iEnt < nEntries; iEnt++) {
     myTree->GetEntry(iEnt); // Gets the next entry (filling the linked variables)
-
     for (size_t i=0; i < ct_x1->size(); ++i) {
       if(ct_z1->at(i)>-200 && ct_z1->at(i)<-150){
+	if((ct_x1->at(i)>-300 && ct_x1->at(i)<-250)||(ct_x1->at(i)<300 && ct_x1->at(i)>250)){
 	x_y_Hit_1_South->Fill(ct_x1->at(i),ct_y1->at(i));
+	}
       }
-      if(ct_z2->at(i)>-200 && ct_z2->at(i)<-150){   
-	x_y_Hit_2_South->Fill(ct_x2->at(i),ct_y2->at(i));
+      if(ct_z2->at(i)>-200 && ct_z2->at(i)<-150 && ct_z1->at(i)>750 && ct_z1->at(i)<800 ){   
+	if(ct_x2->at(i)>-300 && ct_x2->at(i)<-250){
+	  if(ct_x1->at(i)>-300 && ct_x1->at(i)<-250){
+	x_y_Hit_2_South_TPC1->Fill(ct_x2->at(i),ct_y2->at(i));
+	  }
+	}
+      }
+
+      if(ct_z2->at(i)>-200 && ct_z2->at(i)<-150 && ct_z1->at(i)>750 && ct_z1->at(i)<800 ){
+        if(ct_x2->at(i)>250 && ct_x2->at(i)<300){
+          if(ct_x1->at(i)>250 && ct_x1->at(i)<300){
+	    x_y_Hit_2_South_TPC2->Fill(ct_x2->at(i),ct_y2->at(i));
+          }
+        }
       }
       if(ct_z1->at(i)>750 && ct_z1->at(i)<800){
+	if((ct_x1->at(i)>-300 && ct_x1->at(i)<-250)||(ct_x1->at(i)<300 && ct_x1->at(i)>250)){
 	x_y_Hit_1_North->Fill(ct_x1->at(i),ct_y1->at(i));
+	}
       }
-      if(ct_z2->at(i)>750 && ct_z2->at(i)<800){
-	x_y_Hit_2_North->Fill(ct_x2->at(i),ct_y2->at(i));
+      if(ct_z2->at(i)>750 && ct_z2->at(i)<800 && ct_z1->at(i)>-200 && ct_z1->at(i)<-150){
+	if(ct_x2->at(i)>-300 && ct_x2->at(i)<-250){
+	  if(ct_x1->at(i)>-300 && ct_x1->at(i)<-250){
+	x_y_Hit_2_North_TPC1->Fill(ct_x2->at(i),ct_y2->at(i));
+	  }
+	}
       }   
+      if(ct_z2->at(i)>750 && ct_z2->at(i)<800 && ct_z1->at(i)>-200 && ct_z1->at(i)<-150){
+        if(ct_x2->at(i)>270 && ct_x2->at(i)<300){
+          if(ct_x1->at(i)>270 && ct_x1->at(i)<300){
+	    x_y_Hit_2_North_TPC2->Fill(ct_x2->at(i),ct_y2->at(i));
+          }
+        }
+      }
       if(ct_y1->at(i)>-400 && ct_y1->at(i)<-350){
 	x_z_Hit_1_Bottom->Fill(ct_x1->at(i),ct_z1->at(i));
       }
@@ -65,10 +93,14 @@
     }
     for(size_t i=0; i < chit_x->size(); ++i){
       if(chit_z->at(i)>-200 && chit_z->at(i)<-150){
+	if((chit_x->at(i)>-300 && chit_x->at(i)<-270)||(chit_x->at(i)<300 && chit_x->at(i)>270)){
 	x_y_AllHits_South->Fill(chit_x->at(i),chit_y->at(i));
+	}
       }
       if(chit_z->at(i)>750 && chit_z->at(i)<800){
+	if((chit_x->at(i)>-300 && chit_x->at(i)<-270)||(chit_x->at(i)<300 && chit_x->at(i)>270)){
         x_y_AllHits_North->Fill(chit_x->at(i),chit_y->at(i));
+	}
       }
       if(chit_y->at(i)>-400 && chit_y->at(i)<-350){
         x_z_AllHits_Bottom->Fill(chit_x->at(i),chit_z->at(i));
@@ -96,20 +128,38 @@
 
   TCanvas*  x_y_3 = new TCanvas ("xy3", "xy3", 900, 700);
 
-  x_y_Hit_2_South->Draw("COLZ");
-  x_y_Hit_2_South->SetTitle("South CRT Muon Hit 2");
-  x_y_Hit_2_South->GetXaxis()->SetTitle("x Position (cm)");
-  x_y_Hit_2_South->GetYaxis()->SetTitle("y Position (cm)");
+  x_y_Hit_2_South_TPC1->Draw("COLZ");
+  x_y_Hit_2_South_TPC1->SetTitle("South CRT Muon Hit 2 TPC 1");
+  x_y_Hit_2_South_TPC1->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_Hit_2_South_TPC1->GetYaxis()->SetTitle("y Position (cm)");
 
-  x_y_3->SaveAs(SaveDir + "/x_y_Hit_2_South.pdf");
+  x_y_3->SaveAs(SaveDir + "/x_y_Hit_2_South_TPC1.pdf");
 
   TCanvas*  x_y_4 = new TCanvas ("xy4", "xy4", 900, 700);
-  x_y_Hit_2_North->Draw("COLZ");
-  x_y_Hit_2_North->SetTitle("North CRT Muon Hit 2");
-  x_y_Hit_2_North->GetXaxis()->SetTitle("x Position (cm)");
-  x_y_Hit_2_North->GetYaxis()->SetTitle("y Position (cm)");
+  x_y_Hit_2_North_TPC1->Draw("COLZ");
+  x_y_Hit_2_North_TPC1->SetTitle("North CRT Muon Hit 2 TPC 1");
+  x_y_Hit_2_North_TPC1->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_Hit_2_North_TPC1->GetYaxis()->SetTitle("y Position (cm)");
 
-  x_y_4->SaveAs(SaveDir + "/x_y_Hit_2_North.pdf");
+  x_y_4->SaveAs(SaveDir + "/x_y_Hit_2_North_TPC1.pdf");
+
+  TCanvas*  x_y_7 = new TCanvas ("xy7", "xy7", 900, 700);
+
+  x_y_Hit_2_South_TPC2->Draw("COLZ");
+  x_y_Hit_2_South_TPC2->SetTitle("South CRT Muon Hit 2 TPC 2");
+  x_y_Hit_2_South_TPC2->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_Hit_2_South_TPC2->GetYaxis()->SetTitle("y Position (cm)");
+
+  x_y_7->SaveAs(SaveDir + "/x_y_Hit_2_South_TPC2.pdf");
+
+  TCanvas*  x_y_8 = new TCanvas ("xy8", "xy8", 900, 700);
+  x_y_Hit_2_North_TPC2->Draw("COLZ");
+  x_y_Hit_2_North_TPC2->SetTitle("North CRT Muon Hit 2 TPC 2");
+  x_y_Hit_2_North_TPC2->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_Hit_2_North_TPC2->GetYaxis()->SetTitle("y Position (cm)");
+
+  x_y_8->SaveAs(SaveDir + "/x_y_Hit_2_North_TPC2.pdf");
+
 
 
   TCanvas*  x_z_1 = new TCanvas ("xz1", "xz1", 900, 700);
@@ -128,7 +178,7 @@
   x_z_Hit_2_Bottom->GetYaxis()->SetTitle("z Position (cm)");
 
   x_z_2->SaveAs(SaveDir + "/x_z_Hit_2_Bottom.pdf");
-
+  /*
   TCanvas*  x_y_5 = new TCanvas ("xy5", "xy5", 900, 700);
 
   x_y_AllHits_South->Draw("COLZ");
@@ -155,7 +205,7 @@
   x_z_AllHits_Bottom->GetYaxis()->SetTitle("z Position (cm)");
 
   x_z_3->SaveAs(SaveDir + "/x_z_AllHits_Bottom.pdf");
-
+  */
 
 
 
