@@ -6,7 +6,7 @@
   gROOT->Reset();
   const TString SaveDir="/exp/sbnd/data/users/bethanym/wire_transparency/Selection_CRT";
 
-  gStyle->SetOptStat(0); //Removing the stats box
+  //  gStyle->SetOptStat(0); //Removing the stats box
   gStyle->SetPalette(kCandy);
   TColor::InvertPalette(); 
  TFile  myFile("/sbnd/data/users/arellano/tpc_comm/production_231127_brazilCM/sbnd_crt_lifetime/trees/muon_hitdumper_NS_elifetime15ms_sce.root");
@@ -20,6 +20,10 @@
   vector<double>*  chit_x;
   vector<double>*  chit_y;
   vector<double>*  chit_z;
+  vector<double>* muontrk_type;
+  vector<double>*muontrk_theta_xz;
+  vector<double>*muontrk_theta_yz;
+  vector<double>*muontrk_tpc;
   myTree->SetBranchAddress("ct_x1", &ct_x1);
   myTree->SetBranchAddress("ct_x2", &ct_x2);
   myTree->SetBranchAddress("ct_y1", &ct_y1);
@@ -29,6 +33,10 @@
   myTree->SetBranchAddress("chit_x", &chit_x);
   myTree->SetBranchAddress("chit_y", &chit_y);
   myTree->SetBranchAddress("chit_z", &chit_z); 
+  myTree->SetBranchAddress("muontrk_type", &muontrk_type);
+  myTree->SetBranchAddress("muontrk_theta_xz", &muontrk_theta_xz);
+  myTree->SetBranchAddress("muontrk_theta_yz", &muontrk_theta_yz);
+  myTree->SetBranchAddress("muontrk_tpc", &muontrk_tpc);
   gROOT->cd(0);
   TH2F *x_y_Hit_1_South = new TH2F("xy1","xy1",70, -360, 360, 70, -360, 360);
   TH2F *x_y_Hit_1_North = new TH2F("xy2","xy2",70, -360, 360, 70, -360, 360);
@@ -41,6 +49,10 @@
   TH2F *x_y_AllHits_South = new TH2F("xy5","xy5",70, -360, 360, 70, -360, 360);
   TH2F *x_y_AllHits_North = new TH2F("xy6","xy6",70, -360, 360, 70, -360, 360);
   TH2F *x_z_AllHits_Bottom = new TH2F("xz3","xz3",70, -420, 420, 70, -200, 800);
+  TH1F *Theta_xz_South =new TH1F("theta_xz_1", "theta_xz_1", 50, -100, 100);
+  TH1F *Theta_yz_South =new TH1F("theta_yz_1", "theta_yz_1", 50, -100,100);
+  TH1F *Theta_xz_North =new TH1F("theta_xz_2", "theta_xz_2", 50, -100,100);
+  TH1F *Theta_yz_North =new TH1F("theta_yz_2", "theta_yz_2", 50, -100,100);
   int nEntries = myTree->GetEntries(); // Get the number of entries in this tree
   for (int iEnt = 0; iEnt < nEntries; iEnt++) {
     myTree->GetEntry(iEnt); // Gets the next entry (filling the linked variables)
@@ -91,24 +103,58 @@
 	x_z_Hit_2_Bottom->Fill(ct_x2->at(i),ct_z2->at(i));
       }
     }
-    for(size_t i=0; i < chit_x->size(); ++i){
-      if(chit_z->at(i)>-200 && chit_z->at(i)<-150){
-	if((chit_x->at(i)>-300 && chit_x->at(i)<-270)||(chit_x->at(i)<300 && chit_x->at(i)>270)){
-	x_y_AllHits_South->Fill(chit_x->at(i),chit_y->at(i));
-	}
+
+    for(size_t j=0; j<muontrk_type->size(); ++j){
+      //modifying angles start     
+      double modified_theta_xz;
+      double  modified_theta_yz;
+
+      if ( muontrk_theta_xz->at(j) > 90 && muontrk_tpc->at(j) == 0 ) {
+	modified_theta_xz = muontrk_theta_xz->at(j) - 180.0;
+      } else if ( muontrk_theta_xz->at(j) > 90 && muontrk_tpc->at(j) == 1 ) {
+	modified_theta_xz = 180.0 - muontrk_theta_xz->at(j);
+      } else if ( muontrk_theta_xz->at(j) < 90 && muontrk_tpc->at(j) == 1 ) {
+	modified_theta_xz = -muontrk_theta_xz->at(j);
       }
-      if(chit_z->at(i)>750 && chit_z->at(i)<800){
-	if((chit_x->at(i)>-300 && chit_x->at(i)<-270)||(chit_x->at(i)<300 && chit_x->at(i)>270)){
+
+
+      if ( muontrk_theta_yz->at(j) < -90 ) {
+	modified_theta_yz = muontrk_theta_yz->at(j) + 180.;
+      }
+      if ( muontrk_theta_yz->at(j) > 90 ) {
+	  modified_theta_yz = muontrk_theta_yz->at(j) - 180.;
+      }
+  //modifying angles end
+ 
+
+	if(muontrk_type->at(j)==4){
+    for(size_t i=0; i < chit_x->size(); ++i){
+      if(chit_z->at(i)>-200 && chit_z->at(i)<-150 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360 ){
+       	if((chit_x->at(i)>-300 && chit_x->at(i)<-250)||(chit_x->at(i)<300 && chit_x->at(i)>250)){
+	x_y_AllHits_South->Fill(chit_x->at(i),chit_y->at(i));
+	Theta_xz_South->Fill(modified_theta_xz);
+	Theta_yz_South->Fill(modified_theta_yz);
+      	}
+      }
+      if(chit_z->at(i)>750 && chit_z->at(i)<800 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360){
+       	if((chit_x->at(i)>-300 && chit_x->at(i)<-250)||(chit_x->at(i)<300 && chit_x->at(i)>250)){
         x_y_AllHits_North->Fill(chit_x->at(i),chit_y->at(i));
+	Theta_xz_North->Fill(modified_theta_xz);
+	Theta_yz_North->Fill(modified_theta_yz);
 	}
       }
       if(chit_y->at(i)>-400 && chit_y->at(i)<-350){
         x_z_AllHits_Bottom->Fill(chit_x->at(i),chit_z->at(i));
       }
+    }//CRT hits
+      } //muon trk if
+    }//muon trk type
 
-    }
 
-  }
+  } //Entries
+ 
+
+ /*
   TCanvas*  x_y_1 = new TCanvas ("xy1", "xy1", 900, 700);
 
   x_y_Hit_1_South->Draw("COLZ");
@@ -178,7 +224,9 @@
   x_z_Hit_2_Bottom->GetYaxis()->SetTitle("z Position (cm)");
 
   x_z_2->SaveAs(SaveDir + "/x_z_Hit_2_Bottom.pdf");
-  /*
+  */ 
+
+ 
   TCanvas*  x_y_5 = new TCanvas ("xy5", "xy5", 900, 700);
 
   x_y_AllHits_South->Draw("COLZ");
@@ -205,7 +253,50 @@
   x_z_AllHits_Bottom->GetYaxis()->SetTitle("z Position (cm)");
 
   x_z_3->SaveAs(SaveDir + "/x_z_AllHits_Bottom.pdf");
-  */
+  
+  TCanvas*  theta_xz_South = new TCanvas ("theta_xz1", "theta_xz1", 900, 700);
+
+  Theta_xz_South->Draw("");
+  Theta_xz_South->SetTitle("#theta_{xz} South");
+  Theta_xz_South->GetXaxis()->SetTitle("Angle (degrees)");
+  Theta_xz_South->GetYaxis()->SetTitle("");
+  Theta_xz_South->SetLineWidth(4);
+  Theta_xz_South->SetLineColor(kRed-6);
+
+  theta_xz_South->SaveAs(SaveDir + "/Theta_xz_south.pdf");
+
+  TCanvas*  theta_xz_North = new TCanvas ("theta_xz2", "theta_xz2", 900, 700);
+
+  Theta_xz_North->Draw("");
+  Theta_xz_North->SetTitle("#theta_{xz} North");
+  Theta_xz_North->GetXaxis()->SetTitle("Angle (degrees)");
+  Theta_xz_North->GetYaxis()->SetTitle("");
+  Theta_xz_North->SetLineWidth(4);
+  Theta_xz_North->SetLineColor(kRed-6);
+
+  theta_xz_North->SaveAs(SaveDir + "/Theta_xz_North.pdf");
+
+  TCanvas*  theta_yz_South = new TCanvas ("theta_xy1", "theta_xy1", 900, 700);
+
+  Theta_yz_South->Draw("");
+  Theta_yz_South->SetTitle("#theta_{yz} South");
+  Theta_yz_South->GetXaxis()->SetTitle("Angle (degrees)");
+  Theta_yz_South->GetYaxis()->SetTitle("");
+  Theta_yz_South->SetLineWidth(4);
+  Theta_yz_South->SetLineColor(kRed-6);
+
+  theta_yz_South->SaveAs(SaveDir + "/Theta_yz_south.pdf");
+
+  TCanvas*  theta_yz_North = new TCanvas ("theta_xy2", "theta_xy2", 900, 700);
+
+  Theta_yz_North->Draw("");
+  Theta_yz_North->SetTitle("#theta_{yz} North");
+  Theta_yz_North->GetXaxis()->SetTitle("Angle (degrees)");
+  Theta_yz_North->GetYaxis()->SetTitle("");
+  Theta_yz_North->SetLineWidth(4);
+  Theta_yz_North->SetLineColor(kRed-6);
+
+  theta_yz_North->SaveAs(SaveDir + "/Theta_yz_North.pdf");
 
 
 
