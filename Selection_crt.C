@@ -6,7 +6,7 @@
   gROOT->Reset();
   const TString SaveDir="/exp/sbnd/data/users/bethanym/wire_transparency/Selection_CRT";
 
-  //  gStyle->SetOptStat(0); //Removing the stats box
+  gStyle->SetOptStat(0); //Removing the stats box
   gStyle->SetPalette(kCandy);
   TColor::InvertPalette(); 
   TFile  myFile("/sbnd/data/users/arellano/tpc_comm/production_231127_brazilCM/sbnd_crt_lifetime/trees/muon_hitdumper_NS_elifetime15ms_sce.root");
@@ -24,12 +24,6 @@
   vector<double>*muontrk_theta_xz;
   vector<double>*muontrk_theta_yz;
   vector<double>*muontrk_tpc;
-  double dx;
-  double dy;
-  double dz;
-  double CRT_theta_xz;
-  double CRT_theta_yz;
-  double modified_CRT_theta_yz;
   myTree->SetBranchAddress("ct_x1", &ct_x1);
   myTree->SetBranchAddress("ct_x2", &ct_x2);
   myTree->SetBranchAddress("ct_y1", &ct_y1);
@@ -44,92 +38,36 @@
   myTree->SetBranchAddress("muontrk_theta_yz", &muontrk_theta_yz);
   myTree->SetBranchAddress("muontrk_tpc", &muontrk_tpc);
   gROOT->cd(0);
-  TH2F *x_y_Hit_1_South = new TH2F("xy1","xy1",70, -360, 360, 70, -360, 360);
-  TH2F *x_y_Hit_1_North = new TH2F("xy2","xy2",70, -360, 360, 70, -360, 360);
-  TH2F *x_y_Hit_2_South_TPC1 = new TH2F("xy3","xy3",70, -360, 0, 70, -360, 0);
-  TH2F *x_y_Hit_2_North_TPC1 = new TH2F("xy4","xy4",70, -360, 0, 70, -360, 0);
-  TH2F *x_y_Hit_2_South_TPC2 = new TH2F("xy7","xy7",70, 0, 360, 70, 0, 360);
-  TH2F *x_y_Hit_2_North_TPC2 = new TH2F("xy8","xy8",70, 0, 360, 70, 0, 360);
-  TH2F *x_z_Hit_1_Bottom = new TH2F("xz1","xz1",70, -420, 420, 70, -200, 800);
-  TH2F *x_z_Hit_2_Bottom = new TH2F("xz2","xz2",70, -420, 420, 70, -200, 800);
+  TH2F *x_y_Hit_1 = new TH2F("xy1","xy1",70, -360, 360, 70, -360, 360);
+  TH2F *x_y_Hit_2 = new TH2F("xy3","xy3",70, -360, 360, 70, -360, 360);
   TH2F *x_y_AllHits_South = new TH2F("xy5","xy5",70, -360, 360, 70, -360, 360);
   TH2F *x_y_AllHits_North = new TH2F("xy6","xy6",70, -360, 360, 70, -360, 360);
-  TH2F *x_z_AllHits_Bottom = new TH2F("xz3","xz3",70, -420, 420, 70, -200, 800);
-  TH1F *Theta_xz_South =new TH1F("theta_xz_1", "theta_xz_1", 50, -50, 50);
-  TH1F *Theta_yz_South =new TH1F("theta_yz_1", "theta_yz_1", 50, -50,50);
-  TH1F *Theta_xz_North =new TH1F("theta_xz_2", "theta_xz_2", 50, -50,50);
-  TH1F *Theta_yz_North =new TH1F("theta_yz_2", "theta_yz_2", 50, -50,50);
-  TH1F *CRT_Theta_xz_South =new TH1F("crttheta_xz_1", "crttheta_xz_1", 50, -200, 200);
-  TH1F *CRT_Theta_yz_South =new TH1F("crttheta_yz_1", "crttheta_yz_1", 50, -200,200);
-  TH1F *CRT_Theta_xz_North =new TH1F("crttheta_xz_2", "crttheta_xz_2", 50, -200,200);
-  TH1F *CRT_Theta_yz_North =new TH1F("crttheta_yz_2", "crttheta_yz_2", 50, -200,200);
+  TH1F *TPC_Theta_xz =new TH1F("theta_xz_1", "theta_xz_1", 50, -90, 90);
+  TH1F *TPC_Theta_yz =new TH1F("theta_yz_1", "theta_yz_1", 50, -90,90);
+  TH1F *CRT_Theta_xz =new TH1F("crttheta_xz_1", "crttheta_xz_1", 50, -200, 200);
+  TH1F *CRT_Theta_yz =new TH1F("crttheta_yz_1", "crttheta_yz_1", 50, -200,200);
   int nEntries = myTree->GetEntries(); // Get the number of entries in this tree
   for (int iEnt = 0; iEnt < nEntries; iEnt++) { //Big loop of entries
     myTree->GetEntry(iEnt); // Gets the next entry (filling the linked variables)
-    for (size_t i=0; i < ct_x1->size(); ++i) {
-      dx =ct_x2->at(i) - ct_x1->at(i);
-      dy =ct_y2->at(i) - ct_y1->at(i);
-      dz =ct_z2->at(i) - ct_z1->at(i);
-      CRT_theta_xz= atan2(dx,dz)*(180/TMath::Pi());
-      CRT_theta_yz= atan2(dy,dz)*(180/TMath::Pi());
-      modified_CRT_theta_yz=CRT_theta_yz;
-      CRT_Theta_xz_South->Fill(CRT_theta_xz);                                                                                                                                                               
-      CRT_Theta_yz_South->Fill(CRT_theta_yz);
-      if(dy<0.0) modified_CRT_theta_yz=-CRT_theta_yz;
-      if(ct_z1->at(i)>-200 && ct_z1->at(i)<-150){
-	if((ct_x1->at(i)>-300 && ct_x1->at(i)<-250)||(ct_x1->at(i)<300 && ct_x1->at(i)>250)){
-	  x_y_Hit_1_South->Fill(ct_x1->at(i),ct_y1->at(i));
-	}
-      }
-      if(ct_z2->at(i)>-200 && ct_z2->at(i)<-150 && ct_z1->at(i)>750 && ct_z1->at(i)<800 ){   
-	if(ct_x2->at(i)>-300 && ct_x2->at(i)<-250){
-	  if(ct_x1->at(i)>-300 && ct_x1->at(i)<-250){
-	    x_y_Hit_2_South_TPC1->Fill(ct_x2->at(i),ct_y2->at(i));
-	  }
-	}
-      }
+   
+    //*************** Selection start ***************// 
 
-      if(ct_z2->at(i)>-200 && ct_z2->at(i)<-150 && ct_z1->at(i)>750 && ct_z1->at(i)<800 ){
-        if(ct_x2->at(i)>250 && ct_x2->at(i)<300){
-          if(ct_x1->at(i)>250 && ct_x1->at(i)<300){
-	    x_y_Hit_2_South_TPC2->Fill(ct_x2->at(i),ct_y2->at(i));
-          }
-        }
-      }
-      if(ct_z1->at(i)>750 && ct_z1->at(i)<800){
-	if((ct_x1->at(i)>-300 && ct_x1->at(i)<-250)||(ct_x1->at(i)<300 && ct_x1->at(i)>250)){
-	  x_y_Hit_1_North->Fill(ct_x1->at(i),ct_y1->at(i));
-	}
-      }
-      if(ct_z2->at(i)>750 && ct_z2->at(i)<800 && ct_z1->at(i)>-200 && ct_z1->at(i)<-150){
-	if(ct_x2->at(i)>-300 && ct_x2->at(i)<-250){
-	  if(ct_x1->at(i)>-300 && ct_x1->at(i)<-250){
-	    x_y_Hit_2_North_TPC1->Fill(ct_x2->at(i),ct_y2->at(i));
+    //CRT hit 1/2 loop (used to define cuts)
+    bool HasHitInNorthandSouth=false;
+    for (size_t c=0; c < ct_x1->size(); ++c) {
+      if(((ct_z1->at(c)>-200 && ct_z1->at(c)<-150) && (ct_z2->at(c)>750 && ct_z2->at(c)<800)) || ((ct_z1->at(c)>750 && ct_z1->at(c)<800) && (ct_z2->at(c)>-200 && ct_z2->at(c)<-150))){                           
+	if((ct_y1->at(c)>-360 && ct_y1->at(c)<360) && (ct_y2->at(c)>-360 && ct_y2->at(c)<360)){                                                                                                                   
+	  if(((ct_x1->at(c)>-300 && ct_x1->at(c)<-250)&& (ct_x2->at(c)>-300 && ct_x2->at(c)<-250)) || ((ct_x1->at(c)>250 && ct_x1->at(c)<300)&& (ct_x2->at(c)>250 && ct_x2->at(c)<300))){ 
+	    HasHitInNorthandSouth=true;
 	  }
 	}
-      }   
-      if(ct_z2->at(i)>750 && ct_z2->at(i)<800 && ct_z1->at(i)>-200 && ct_z1->at(i)<-150){
-        if(ct_x2->at(i)>270 && ct_x2->at(i)<300){
-          if(ct_x1->at(i)>270 && ct_x1->at(i)<300){
-	    x_y_Hit_2_North_TPC2->Fill(ct_x2->at(i),ct_y2->at(i));
-          }
-        }
-      }
-      if(ct_y1->at(i)>-400 && ct_y1->at(i)<-350){
-	x_z_Hit_1_Bottom->Fill(ct_x1->at(i),ct_z1->at(i));
-      }
-      if(ct_y2->at(i)>-400 && ct_y2->at(i)<-350){
-	x_z_Hit_2_Bottom->Fill(ct_x2->at(i),ct_z2->at(i));
       }
     }
-
-
-    //*************** Selection using chit variable start ***************// 
 
     // TPC loop 1 (used to define cuts)
     bool HasTrkType4= false;
     for(size_t j=0; j<muontrk_type->size(); ++j){ //Looping over TPC tracks
-      if(muontrk_type->at(j)==4){//Selecting track type 4
+      if(muontrk_type->at(j)==4 || muontrk_type->at(j)==5){//Selecting track type 4 + 5 
 	HasTrkType4=true;
       }// if
     }//for
@@ -140,258 +78,201 @@
     bool IsInHitRegionNorth=false;
     for(size_t i=0; i < chit_x->size(); ++i){ //Looping over CRT hits
       if(chit_z->at(i)>-200 && chit_z->at(i)<-150 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360 ){ //Selectiong South CRT
-	if((chit_x->at(i)>-300 && chit_x->at(i)<-250)||(chit_x->at(i)<300 && chit_x->at(i)>250)){ // Cut on x region
+	if((chit_x->at(i)>-200 && chit_x->at(i)<-150)||(chit_x->at(i)<200 && chit_x->at(i)>150)){ // Cut on x region
 	  IsInHitRegionSouth=true;
 	} //CRT if
       }//x cut if
       if(chit_z->at(i)>750 && chit_z->at(i)<800 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360){ //Selecting north CRT
-	if((chit_x->at(i)>-300 && chit_x->at(i)<-250)||(chit_x->at(i)<300 && chit_x->at(i)>250)){ //Cut on x region
+	if((chit_x->at(i)>-200 && chit_x->at(i)<-150)||(chit_x->at(i)<200 && chit_x->at(i)>150)){ //Cut on x region
 	  IsInHitRegionNorth=true;
 	}// CRT if
       }// x cut if
     }//CRT hits for
      
-    if(HasTrkType4 && (IsInHitRegionSouth || IsInHitRegionNorth)){  // Cuts required
-	//TPC loop 2 (used to fill histograms)
-	for(size_t j=0; j<muontrk_type->size(); ++j){ //Looping over TPC tracks 
+    if(HasTrkType4 && HasHitInNorthandSouth){  // Cuts required
+      //TPC loop 2 (used to fill histograms)
+      for(size_t j=0; j<muontrk_type->size(); ++j){ //Looping over TPC tracks 
 
-	  //modifying TPC angles start     
-	  double modified_theta_xz = muontrk_theta_xz->at(j);
-	  double  modified_theta_yz =muontrk_theta_yz->at(j);
+	//modifying TPC angles start     
+	double modified_theta_xz = muontrk_theta_xz->at(j);
+	double  modified_theta_yz =muontrk_theta_yz->at(j);
 
-	  if ( muontrk_theta_xz->at(j) > 90 && muontrk_tpc->at(j) == 0 ) {
-	    modified_theta_xz = muontrk_theta_xz->at(j) - 180.0;
-	  }
-	  else if ( muontrk_theta_xz->at(j) > 90 && muontrk_tpc->at(j) == 1 ) {
-	    modified_theta_xz = 180.0 - muontrk_theta_xz->at(j);
-	  }
-	  else if ( muontrk_theta_xz->at(j) < 90 && muontrk_tpc->at(j) == 1 ) {
-	    modified_theta_xz = -muontrk_theta_xz->at(j);
-	  }
+	if ( muontrk_theta_xz->at(j) > 90 && muontrk_tpc->at(j) == 0 ) {
+	  modified_theta_xz = muontrk_theta_xz->at(j) - 180.0;
+	}
+	else if ( muontrk_theta_xz->at(j) > 90 && muontrk_tpc->at(j) == 1 ) {
+	  modified_theta_xz = 180.0 - muontrk_theta_xz->at(j);
+	}
+	else if ( muontrk_theta_xz->at(j) < 90 && muontrk_tpc->at(j) == 1 ) {
+	  modified_theta_xz = -muontrk_theta_xz->at(j);
+	}
 
-	  if ( muontrk_theta_yz->at(j) < -90 ) {
-	    modified_theta_yz = muontrk_theta_yz->at(j) + 180.;
-	  }
-	  if ( muontrk_theta_yz->at(j) > 90 ) {
-	    modified_theta_yz = muontrk_theta_yz->at(j) - 180.;
-	  }
-	  //modifying TPC angles end
+	if ( muontrk_theta_yz->at(j) < -90 ) {
+	  modified_theta_yz = muontrk_theta_yz->at(j) + 180.;
+	}
+	if ( muontrk_theta_yz->at(j) > 90 ) {
+	  modified_theta_yz = muontrk_theta_yz->at(j) - 180.;
+	}
+	//modifying TPC angles end
 	 
-	  if(muontrk_type->at(j)==4){
-	    Theta_xz_South->Fill(modified_theta_xz);
-	    Theta_yz_South->Fill(modified_theta_yz);
-	  }
-	}//TPC trk loop end
+	if(muontrk_type->at(j)==4 || muontrk_type->at(j)==5){
+	  TPC_Theta_xz->Fill(modified_theta_xz);
+	  TPC_Theta_yz->Fill(modified_theta_yz);
+	}
+      }//TPC trk loop end
 
-	//CRT loop 2 (Used to fill histograms)
-	for(size_t i=0; i < chit_x->size(); ++i){ //Looping over CRT hits
-	  if(chit_z->at(i)>-200 && chit_z->at(i)<-150 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360 ){ //Selectiong South CRT 
-	    if((chit_x->at(i)>-300 && chit_x->at(i)<-250)||(chit_x->at(i)<300 && chit_x->at(i)>250)){ //Cut on x region
+      //CRT loop 2 (Used to fill histograms)
+      for(size_t i=0; i < chit_x->size(); ++i){ //Looping over CRT hits
+	if(chit_z->at(i)>-200 && chit_z->at(i)<-150 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360 ){ //Selectiong South CRT 
+	  if((chit_x->at(i)>-200 && chit_x->at(i)<-150)||(chit_x->at(i)<200 && chit_x->at(i)>150)){ //Cut on x region
 	    x_y_AllHits_South->Fill(chit_x->at(i),chit_y->at(i));
-	    } //South CRT
-	  }// x region
-	  if(chit_z->at(i)>750 && chit_z->at(i)<800 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360){ //Selecting north CRT  
-	    if((chit_x->at(i)>-300 && chit_x->at(i)<-250)||(chit_x->at(i)<300 && chit_x->at(i)>250)){ //Cut on x region 
+	  } //South CRT
+	}// x region
+	if(chit_z->at(i)>750 && chit_z->at(i)<800 && chit_x->at(i)>-360 && chit_x->at(i)<360 && chit_y->at(i)>-360 && chit_y->at(i)<360){ //Selecting north CRT  
+	  if((chit_x->at(i)>-200 && chit_x->at(i)<-150)||(chit_x->at(i)<200 && chit_x->at(i)>150)){ //Cut on x region 
 	    x_y_AllHits_North->Fill(chit_x->at(i),chit_y->at(i));
-	    }// North CRT
-	  }// x region
-	}//CRT hit loop end
-      }// end of required cuts if 
+	  }// North CRT
+	}// x region
+      }//CRT hit loop end
 
-   //*************** Selection using chit variable end ***************//
+      //CRT hit 1/2 loop (used to fill histograms)
+      for (size_t c=0; c < ct_x1->size(); ++c) {
+	double dx;
+	double dy;
+	double dz;
+	double CRT_theta_xz;
+	double CRT_theta_yz;
+	if(((ct_z1->at(c)>-200 && ct_z1->at(c)<-150) && (ct_z2->at(c)>750 && ct_z2->at(c)<800)) || ((ct_z1->at(c)>750 && ct_z1->at(c)<800) && (ct_z2->at(c)>-200 && ct_z2->at(c)<-150))){
+	  if((ct_y1->at(c)>-360 && ct_y1->at(c)<360) && (ct_y2->at(c)>-360 && ct_y2->at(c)<360)){
+	    if(((ct_x1->at(c)>-300 && ct_x1->at(c)<-250)&& (ct_x2->at(c)>-300 && ct_x2->at(c)<-250)) || ((ct_x1->at(c)>250 && ct_x1->at(c)<300)&& (ct_x2->at(c)>250 && ct_x2->at(c)<300))){ 
+	      x_y_Hit_1->Fill(ct_x1->at(c),ct_y1->at(c));
+	      x_y_Hit_2->Fill(ct_x2->at(c),ct_y2->at(c));
+
+	      
+	      dx =ct_x2->at(c) - ct_x1->at(c);
+	      dy =ct_y2->at(c) - ct_y1->at(c);
+	      dz =ct_z2->at(c) - ct_z1->at(c);
+		
+	      CRT_theta_xz= atan2(dx,dz)*(180/TMath::Pi());
+	      /*
+		if(CRT_theta_xz<-12 && CRT_theta_xz>-24){
+		cout<<dx<< "   dx"<<endl;
+		cout<<dz<< "   dz"<<endl;
+		cout<<ct_x2->at(c)<< "    x2"<<endl;
+		cout<<ct_x1->at(c)<< "    x1"<<endl;
+		cout<<CRT_theta_xz<< "   theta_xz"<<endl;
+		} */
+	      CRT_theta_yz= atan2(dy,dz)*(180/TMath::Pi());
+	      /*
+		if(CRT_theta_yz<-12 &&CRT_theta_yz>-24){
+		cout<<dy<< "   dy"<<endl; 
+		cout<<dz<< "   dz"<<endl;
+		cout<<ct_y2->at(c)<< "    y2"<<endl;
+		cout<<ct_y1->at(c)<< "    y1"<<endl;
+		cout<<CRT_theta_yz<< "   theta_yz"<<endl;
+		}*/
+	      CRT_Theta_xz->Fill(CRT_theta_xz);
+	      CRT_Theta_yz->Fill(CRT_theta_yz);
+	      
+	    }//x if
+	  }//y if 
+	}//z if
+      }// end of CRT hit 1/2 loop
+
+	
+    }// end of required cuts if 
+
+    //*************** Selection end ***************//
 
 
   } //Big loop of entries
  
-    //*************** Making histograms pretty ********************//
-  /*
-    TCanvas*  x_y_1 = new TCanvas ("xy1", "xy1", 900, 700);
+    //*************** Making pretty histograms ********************//
+  
+  TCanvas*  x_y_1 = new TCanvas ("xy1", "xy1", 900, 700);
 
-    x_y_Hit_1_South->Draw("COLZ");
-    x_y_Hit_1_South->SetTitle("South CRT Muon Hit 1");
-    x_y_Hit_1_South->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_Hit_1_South->GetYaxis()->SetTitle("y Position (cm)");
+  x_y_Hit_1->Draw("COLZ");
+  x_y_Hit_1->SetTitle("CRT Muon Hit 1");
+  x_y_Hit_1->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_Hit_1->GetYaxis()->SetTitle("y Position (cm)");
 
-    x_y_1->SaveAs(SaveDir + "/x_y_Hit_1_South.pdf");  
-
-    TCanvas*  x_y_2 = new TCanvas ("xy2", "xy2", 900, 700);
-    x_y_Hit_1_North->Draw("COLZ");
-    x_y_Hit_1_North->SetTitle("North CRT Muon Hit 1");
-    x_y_Hit_1_North->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_Hit_1_North->GetYaxis()->SetTitle("y Position (cm)");
-
-    x_y_2->SaveAs(SaveDir + "/x_y_Hit_1_North.pdf");
-
-    TCanvas*  x_y_3 = new TCanvas ("xy3", "xy3", 900, 700);
-
-    x_y_Hit_2_South_TPC1->Draw("COLZ");
-    x_y_Hit_2_South_TPC1->SetTitle("South CRT Muon Hit 2 TPC 1");
-    x_y_Hit_2_South_TPC1->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_Hit_2_South_TPC1->GetYaxis()->SetTitle("y Position (cm)");
-
-    x_y_3->SaveAs(SaveDir + "/x_y_Hit_2_South_TPC1.pdf");
-
-    TCanvas*  x_y_4 = new TCanvas ("xy4", "xy4", 900, 700);
-    x_y_Hit_2_North_TPC1->Draw("COLZ");
-    x_y_Hit_2_North_TPC1->SetTitle("North CRT Muon Hit 2 TPC 1");
-    x_y_Hit_2_North_TPC1->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_Hit_2_North_TPC1->GetYaxis()->SetTitle("y Position (cm)");
-
-    x_y_4->SaveAs(SaveDir + "/x_y_Hit_2_North_TPC1.pdf");
-
-    TCanvas*  x_y_7 = new TCanvas ("xy7", "xy7", 900, 700);
-
-    x_y_Hit_2_South_TPC2->Draw("COLZ");
-    x_y_Hit_2_South_TPC2->SetTitle("South CRT Muon Hit 2 TPC 2");
-    x_y_Hit_2_South_TPC2->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_Hit_2_South_TPC2->GetYaxis()->SetTitle("y Position (cm)");
-
-    x_y_7->SaveAs(SaveDir + "/x_y_Hit_2_South_TPC2.pdf");
-
-    TCanvas*  x_y_8 = new TCanvas ("xy8", "xy8", 900, 700);
-    x_y_Hit_2_North_TPC2->Draw("COLZ");
-    x_y_Hit_2_North_TPC2->SetTitle("North CRT Muon Hit 2 TPC 2");
-    x_y_Hit_2_North_TPC2->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_Hit_2_North_TPC2->GetYaxis()->SetTitle("y Position (cm)");
-
-    x_y_8->SaveAs(SaveDir + "/x_y_Hit_2_North_TPC2.pdf");
+  x_y_1->SaveAs(SaveDir + "/x_y_Hit_1.pdf");  
 
 
+  TCanvas*  x_y_3 = new TCanvas ("xy3", "xy3", 900, 700);
 
-    TCanvas*  x_z_1 = new TCanvas ("xz1", "xz1", 900, 700);
-    x_z_Hit_1_Bottom->Draw("COLZ");
-    x_z_Hit_1_Bottom->SetTitle("Bottom CRT Muon Hit 1");
-    x_z_Hit_1_Bottom->GetXaxis()->SetTitle("x Position (cm)");
-    x_z_Hit_1_Bottom->GetYaxis()->SetTitle("z Position (cm)");
+  x_y_Hit_2->Draw("COLZ");
+  x_y_Hit_2->SetTitle("CRT Muon Hit 2");
+  x_y_Hit_2->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_Hit_2->GetYaxis()->SetTitle("y Position (cm)");
 
-    x_z_1->SaveAs(SaveDir + "/x_z_Hit_1_Bottom.pdf");
-
-    TCanvas*  x_z_2 = new TCanvas ("xz2", "xz2", 900, 700);
-
-    x_z_Hit_2_Bottom->Draw("COLZ");
-    x_z_Hit_2_Bottom->SetTitle("Bottom CRT Muon Hit 2");
-    x_z_Hit_2_Bottom->GetXaxis()->SetTitle("x Position (cm)");
-    x_z_Hit_2_Bottom->GetYaxis()->SetTitle("z Position (cm)");
-
-    x_z_2->SaveAs(SaveDir + "/x_z_Hit_2_Bottom.pdf");
-  */ 
+  x_y_3->SaveAs(SaveDir + "/x_y_Hit_2.pdf");
+ 
 
   
-    TCanvas*  x_y_5 = new TCanvas ("xy5", "xy5", 900, 700);
+  TCanvas*  x_y_5 = new TCanvas ("xy5", "xy5", 900, 700);
 
-    x_y_AllHits_South->Draw("COLZ");
-    x_y_AllHits_South->SetTitle("South CRT Muon Hits");
-    x_y_AllHits_South->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_AllHits_South->GetYaxis()->SetTitle("y Position (cm)");
+  x_y_AllHits_South->Draw("COLZ");
+  x_y_AllHits_South->SetTitle("South CRT Muon Hits");
+  x_y_AllHits_South->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_AllHits_South->GetYaxis()->SetTitle("y Position (cm)");
 
-    x_y_5->SaveAs(SaveDir + "/x_y_AllHits_South.pdf");
+  x_y_5->SaveAs(SaveDir + "/x_y_AllHits_South.pdf");
 
-    TCanvas*  x_y_6 = new TCanvas ("xy6", "xy6", 900, 700);
+  TCanvas*  x_y_6 = new TCanvas ("xy6", "xy6", 900, 700);
 
-    x_y_AllHits_North->Draw("COLZ");
-    x_y_AllHits_North->SetTitle("North CRT Muon Hits");
-    x_y_AllHits_North->GetXaxis()->SetTitle("x Position (cm)");
-    x_y_AllHits_North->GetYaxis()->SetTitle("y Position (cm)");
+  x_y_AllHits_North->Draw("COLZ");
+  x_y_AllHits_North->SetTitle("North CRT Muon Hits");
+  x_y_AllHits_North->GetXaxis()->SetTitle("x Position (cm)");
+  x_y_AllHits_North->GetYaxis()->SetTitle("y Position (cm)");
 
-    x_y_6->SaveAs(SaveDir + "/x_y_AllHits_North.pdf");
-    /*
-    TCanvas*  x_z_3 = new TCanvas ("xz3", "xz3", 900, 700);
+  x_y_6->SaveAs(SaveDir + "/x_y_AllHits_North.pdf");
+  
 
-    x_z_AllHits_Bottom->Draw("COLZ");
-    x_z_AllHits_Bottom->SetTitle("Bottom CRT Muon Hits");
-    x_z_AllHits_Bottom->GetXaxis()->SetTitle("x Position (cm)");
-    x_z_AllHits_Bottom->GetYaxis()->SetTitle("z Position (cm)");
+  TCanvas*  TPC_theta_xz = new TCanvas ("theta_xz1", "theta_xz1", 900, 700);
 
-    x_z_3->SaveAs(SaveDir + "/x_z_AllHits_Bottom.pdf");
-  */
-  TCanvas*  theta_xz_South = new TCanvas ("theta_xz1", "theta_xz1", 900, 700);
+  TPC_Theta_xz->Draw("");
+  TPC_Theta_xz->SetTitle("#theta_{xz} TPC");
+  TPC_Theta_xz->GetXaxis()->SetTitle("Angle (degrees)");
+  TPC_Theta_xz->GetYaxis()->SetTitle("");
+  TPC_Theta_xz->SetLineWidth(4);
+  TPC_Theta_xz->SetLineColor(kRed-6);
 
-  Theta_xz_South->Draw("");
-  Theta_xz_South->SetTitle("#theta_{xz} South");
-  Theta_xz_South->GetXaxis()->SetTitle("Angle (degrees)");
-  Theta_xz_South->GetYaxis()->SetTitle("");
-  Theta_xz_South->SetLineWidth(4);
-  Theta_xz_South->SetLineColor(kRed-6);
+  TPC_theta_xz->SaveAs(SaveDir + "/TPC_Theta_xz.pdf");
+  
+  TCanvas*  TPC_theta_yz = new TCanvas ("theta_xy1", "theta_xy1", 900, 700);
 
-  theta_xz_South->SaveAs(SaveDir + "/Theta_xz_south.pdf");
-  /*
-  TCanvas*  theta_xz_North = new TCanvas ("theta_xz2", "theta_xz2", 900, 700);
+  TPC_Theta_yz->Draw("");
+  TPC_Theta_yz->SetTitle("#theta_{yz} TPC");
+  TPC_Theta_yz->GetXaxis()->SetTitle("Angle (degrees)");
+  TPC_Theta_yz->GetYaxis()->SetTitle("");
+  TPC_Theta_yz->SetLineWidth(4);
+  TPC_Theta_yz->SetLineColor(kRed-6);
 
-  Theta_xz_North->Draw("");
-  Theta_xz_North->SetTitle("#theta_{xz} North");
-  Theta_xz_North->GetXaxis()->SetTitle("Angle (degrees)");
-  Theta_xz_North->GetYaxis()->SetTitle("");
-  Theta_xz_North->SetLineWidth(4);
-  Theta_xz_North->SetLineColor(kRed-6);
+  TPC_theta_yz->SaveAs(SaveDir + "/TPC_Theta_yz.pdf");
+ 
+  
+  TCanvas*  CRT_theta_xz = new TCanvas ("crttheta_xz1", "crttheta_xz1", 900, 700);
 
-  theta_xz_North->SaveAs(SaveDir + "/Theta_xz_North.pdf");
-  */
-  TCanvas*  theta_yz_South = new TCanvas ("theta_xy1", "theta_xy1", 900, 700);
+  CRT_Theta_xz->Draw("");
+  CRT_Theta_xz->SetTitle("#theta_{xz} CRT");
+  CRT_Theta_xz->GetXaxis()->SetTitle("Angle (degrees)");
+  CRT_Theta_xz->GetYaxis()->SetTitle("");
+  CRT_Theta_xz->SetLineWidth(4);
+  CRT_Theta_xz->SetLineColor(kRed-6);
 
-  Theta_yz_South->Draw("");
-  Theta_yz_South->SetTitle("#theta_{yz} South");
-  Theta_yz_South->GetXaxis()->SetTitle("Angle (degrees)");
-  Theta_yz_South->GetYaxis()->SetTitle("");
-  Theta_yz_South->SetLineWidth(4);
-  Theta_yz_South->SetLineColor(kRed-6);
+  CRT_theta_xz->SaveAs(SaveDir + "/CRT_Theta_xz.pdf");
 
-  theta_yz_South->SaveAs(SaveDir + "/Theta_yz_south.pdf");
-  /*
-  TCanvas*  theta_yz_North = new TCanvas ("theta_xy2", "theta_xy2", 900, 700);
 
-  Theta_yz_North->Draw("");
-  Theta_yz_North->SetTitle("#theta_{yz} North");
-  Theta_yz_North->GetXaxis()->SetTitle("Angle (degrees)");
-  Theta_yz_North->GetYaxis()->SetTitle("");
-  Theta_yz_North->SetLineWidth(4);
-  Theta_yz_North->SetLineColor(kRed-6);
+  TCanvas*  CRT_theta_yz = new TCanvas ("crttheta_xy1", "crttheta_xy1", 900, 700);
 
-  theta_yz_North->SaveAs(SaveDir + "/Theta_yz_North.pdf");
-  */
-  /*
-  TCanvas*  CRT_theta_xz_South = new TCanvas ("crttheta_xz1", "crttheta_xz1", 900, 700);
+  CRT_Theta_yz->Draw("");
+  CRT_Theta_yz->SetTitle("#theta_{yz} CRT");
+  CRT_Theta_yz->GetXaxis()->SetTitle("Angle (degrees)");
+  CRT_Theta_yz->GetYaxis()->SetTitle("");
+  CRT_Theta_yz->SetLineWidth(4);
+  CRT_Theta_yz->SetLineColor(kRed-6);
 
-  CRT_Theta_xz_South->Draw("");
-  CRT_Theta_xz_South->SetTitle("#theta_{xz} South");
-  CRT_Theta_xz_South->GetXaxis()->SetTitle("Angle (degrees)");
-  CRT_Theta_xz_South->GetYaxis()->SetTitle("");
-  CRT_Theta_xz_South->SetLineWidth(4);
-  CRT_Theta_xz_South->SetLineColor(kRed-6);
-
-  CRT_theta_xz_South->SaveAs(SaveDir + "/CRT_Theta_xz_south.pdf");
-
-  TCanvas*  CRT_theta_xz_North = new TCanvas ("crttheta_xz2", "crttheta_xz2", 900, 700);
-
-  CRT_Theta_xz_North->Draw("");
-  CRT_Theta_xz_North->SetTitle("#theta_{xz} North");
-  CRT_Theta_xz_North->GetXaxis()->SetTitle("Angle (degrees)");
-  CRT_Theta_xz_North->GetYaxis()->SetTitle("");
-  CRT_Theta_xz_North->SetLineWidth(4);
-  CRT_Theta_xz_North->SetLineColor(kRed-6);
-
-  CRT_theta_xz_North->SaveAs(SaveDir + "/CRT_Theta_xz_North.pdf");
-
-  TCanvas*  CRT_theta_yz_South = new TCanvas ("crttheta_xy1", "crttheta_xy1", 900, 700);
-
-  CRT_Theta_yz_South->Draw("");
-  CRT_Theta_yz_South->SetTitle("#theta_{yz} South");
-  CRT_Theta_yz_South->GetXaxis()->SetTitle("Angle (degrees)");
-  CRT_Theta_yz_South->GetYaxis()->SetTitle("");
-  CRT_Theta_yz_South->SetLineWidth(4);
-  CRT_Theta_yz_South->SetLineColor(kRed-6);
-
-  CRT_theta_yz_South->SaveAs(SaveDir + "/CRT_Theta_yz_south.pdf");
-
-  TCanvas*  CRT_theta_yz_North = new TCanvas ("crttheta_xy2", "crttheta_xy2", 900, 700);
-
-  CRT_Theta_yz_North->Draw("");
-  CRT_Theta_yz_North->SetTitle("#theta_{yz} North");
-  CRT_Theta_yz_North->GetXaxis()->SetTitle("Angle (degrees)");
-  CRT_Theta_yz_North->GetYaxis()->SetTitle("");
-  CRT_Theta_yz_North->SetLineWidth(4);
-  CRT_Theta_yz_North->SetLineColor(kRed-6);
-
-  CRT_theta_yz_North->SaveAs(SaveDir + "/CRT_Theta_yz_North.pdf");
-  */
-
+  CRT_theta_yz->SaveAs(SaveDir + "/CRT_Theta_yz.pdf");
+  
 }
