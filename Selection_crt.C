@@ -57,7 +57,7 @@
     for (size_t c=0; c < ct_x1->size(); ++c) {
       if(((ct_z1->at(c)>-200 && ct_z1->at(c)<-150) && (ct_z2->at(c)>750 && ct_z2->at(c)<800)) || ((ct_z1->at(c)>750 && ct_z1->at(c)<800) && (ct_z2->at(c)>-200 && ct_z2->at(c)<-150))){                           
 	if((ct_y1->at(c)>-360 && ct_y1->at(c)<360) && (ct_y2->at(c)>-360 && ct_y2->at(c)<360)){                                                                                                                   
-	  if(((ct_x1->at(c)>-300 && ct_x1->at(c)<-250)&& (ct_x2->at(c)>-300 && ct_x2->at(c)<-250)) || ((ct_x1->at(c)>250 && ct_x1->at(c)<300)&& (ct_x2->at(c)>250 && ct_x2->at(c)<300))){ 
+	  if(((ct_x1->at(c)>-200 && ct_x1->at(c)<-150)&& (ct_x2->at(c)>-200 && ct_x2->at(c)<-150)) || ((ct_x1->at(c)>150 && ct_x1->at(c)<200)&& (ct_x2->at(c)>150 && ct_x2->at(c)<200))){ 
 	    HasHitInNorthandSouth=true;
 	  }
 	}
@@ -144,7 +144,7 @@
 	double CRT_theta_yz;
 	if(((ct_z1->at(c)>-200 && ct_z1->at(c)<-150) && (ct_z2->at(c)>750 && ct_z2->at(c)<800)) || ((ct_z1->at(c)>750 && ct_z1->at(c)<800) && (ct_z2->at(c)>-200 && ct_z2->at(c)<-150))){
 	  if((ct_y1->at(c)>-360 && ct_y1->at(c)<360) && (ct_y2->at(c)>-360 && ct_y2->at(c)<360)){
-	    if(((ct_x1->at(c)>-300 && ct_x1->at(c)<-250)&& (ct_x2->at(c)>-300 && ct_x2->at(c)<-250)) || ((ct_x1->at(c)>250 && ct_x1->at(c)<300)&& (ct_x2->at(c)>250 && ct_x2->at(c)<300))){ 
+	    if(((ct_x1->at(c)>-200 && ct_x1->at(c)<-150)&& (ct_x2->at(c)>-200 && ct_x2->at(c)<-150)) || ((ct_x1->at(c)>150 && ct_x1->at(c)<200)&& (ct_x2->at(c)>150 && ct_x2->at(c)<200))){ 
 	      x_y_Hit_1->Fill(ct_x1->at(c),ct_y1->at(c));
 	      x_y_Hit_2->Fill(ct_x2->at(c),ct_y2->at(c));
 
