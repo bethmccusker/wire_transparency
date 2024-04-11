@@ -7,7 +7,7 @@
 #include<TROOT.h>
 #include<iostream>
 #include"event_display_test.C"
-
+#include<sstream>
 bool CutFunction(double x1, double y1,double z1,double x2, double y2,double z2){
   bool z =((z1>-200 && z1<-150) && (z2>750 && z2<800)) || ((z1>750 && z1<800) && (z2>-200 && z2<-150));
   bool y = (y1>-360 && y1<360) && (y2>-360 && y2<360);
@@ -114,16 +114,16 @@ void Selection_crt()
 	}
       }//TPC trk loop end
 
-
       //CRT hit 1/2 loop (used to fill histograms)
-      for (size_t c=0; c < ct_x1->size(); ++c) {
+      int n = ct_x1->size();
+      for (size_t c=0; c < n; ++c) {
 	double dx;
 	double dy;
 	double dz;
 	double CRT_theta_xz;
 	double CRT_theta_yz;
-	double track_start[3] {ct_x1->at(c),ct_y1->at(c),ct_z1->at(c)};
-	double track_end[3] {ct_x2->at(c),ct_y2->at(c),ct_z2->at(c)};
+	double track_start[3] {0,0,0};
+	double track_end[3] {0,0,0};
 
 	if(CutFunction(ct_x1->at(c),ct_y1->at(c),ct_z1->at(c),ct_x2->at(c),ct_y2->at(c),ct_z2->at(c))){
 	  x_y_Hit_1->Fill(ct_x1->at(c),ct_y1->at(c));
@@ -132,7 +132,13 @@ void Selection_crt()
 	  dx =ct_x2->at(c) - ct_x1->at(c);
 	  dy =ct_y2->at(c) - ct_y1->at(c);
 	  dz =ct_z2->at(c) - ct_z1->at(c);
-	
+	  track_start[0]= ct_x1->at(c);
+	  track_start[1]=ct_y1->at(c);
+	  track_start[2]=ct_z1->at(c);
+	  track_end[0]= ct_x2->at(c);
+	  track_end[1]=ct_y2->at(c);
+	  track_end[2]=ct_z2->at(c);
+
 	  CRT_theta_xz= atan2(dx,dz)*(180/TMath::Pi());
 	
 	
@@ -155,10 +161,12 @@ void Selection_crt()
 	  }
 	  CRT_Theta_xz->Fill(modified_theta_xz_CRT);
 	  CRT_Theta_yz->Fill(modified_theta_yz_CRT);
-			  
-	  event_display(track_start,track_end);
+
+	  double i = modified_theta_yz_CRT; 
+	   event_display(track_start,track_end,i);
+
 	}
-      }// end of hit1/2 loop 	
+      }// end of hit1/2 loop 	 
     }// end of required cuts if 
 
     //*************** Selection end ***************//
