@@ -122,8 +122,6 @@ void Selection_crt()
 	double dz;
 	double CRT_theta_xz;
 	double CRT_theta_yz;
-	double track_start[3] {0,0,0};
-	double track_end[3] {0,0,0};
 
 	if(CutFunction(ct_x1->at(c),ct_y1->at(c),ct_z1->at(c),ct_x2->at(c),ct_y2->at(c),ct_z2->at(c))){
 	  x_y_Hit_1->Fill(ct_x1->at(c),ct_y1->at(c));
@@ -132,13 +130,12 @@ void Selection_crt()
 	  dx =ct_x2->at(c) - ct_x1->at(c);
 	  dy =ct_y2->at(c) - ct_y1->at(c);
 	  dz =ct_z2->at(c) - ct_z1->at(c);
-	  track_start[0]= ct_x1->at(c);
-	  track_start[1]=ct_y1->at(c);
-	  track_start[2]=ct_z1->at(c);
-	  track_end[0]= ct_x2->at(c);
-	  track_end[1]=ct_y2->at(c);
-	  track_end[2]=ct_z2->at(c);
 
+
+	  TVector3* track_start= new TVector3(ct_x1->at(c),ct_y1->at(c),ct_z1->at(c));
+	  TVector3* track_end= new TVector3(ct_x2->at(c),ct_y2->at(c),ct_z2->at(c));    
+
+	
 	  CRT_theta_xz= atan2(dx,dz)*(180/TMath::Pi());
 	
 	
@@ -162,11 +159,12 @@ void Selection_crt()
 	  CRT_Theta_xz->Fill(modified_theta_xz_CRT);
 	  CRT_Theta_yz->Fill(modified_theta_yz_CRT);
 
-	  double i = modified_theta_yz_CRT; 
-	   event_display(track_start,track_end,i);
+	  std::string index = Form("event%i_track%zu_angle%f",iEnt,c,modified_theta_yz_CRT); 	   
+	   event_display(track_start,track_end,index);
 
 	}
       }// end of hit1/2 loop 	 
+
     }// end of required cuts if 
 
     //*************** Selection end ***************//
