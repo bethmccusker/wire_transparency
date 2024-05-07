@@ -38,6 +38,8 @@ void Selection_crt()
   vector<double>*muontrk_theta_xz=0;
   vector<double>*muontrk_theta_yz=0;
   vector<double>*muontrk_tpc=0;
+  int track_colour;
+  vector<int> track_type;
   myTree->SetBranchAddress("ct_x1", &ct_x1);
   myTree->SetBranchAddress("ct_x2", &ct_x2);
   myTree->SetBranchAddress("ct_y1", &ct_y1);
@@ -59,6 +61,8 @@ void Selection_crt()
   TH1F *CRT_Theta_xz =new TH1F("crttheta_xz_1", "crttheta_xz_1", 50, -100, 100);
   TH1F *CRT_Theta_yz =new TH1F("crttheta_yz_1", "crttheta_yz_1", 50, -100,100);
   int nEntries = myTree->GetEntries(); // Get the number of entries in this tree
+  vector<TVector3*> track_starts;
+  vector<TVector3*> track_ends;
   for (int iEnt = 0; iEnt < nEntries; iEnt++) { //Big loop of entries
     myTree->GetEntry(iEnt); // Gets the next entry (filling the linked variables)
     //*************** Selection start ***************// 
@@ -78,7 +82,6 @@ void Selection_crt()
 	HasTrkType4=true;
       }// if
     }//for
-
 
     //*************This is the loop where histograms are being filled and angles are being definied*******************//
     if(HasTrkType4 && CutResult){  // Cuts required at the event level
@@ -134,8 +137,12 @@ void Selection_crt()
 
 	  TVector3* track_start= new TVector3(ct_x1->at(c),ct_y1->at(c),ct_z1->at(c));
 	  TVector3* track_end= new TVector3(ct_x2->at(c),ct_y2->at(c),ct_z2->at(c));    
+	 
+	  track_starts.push_back(track_start);
+	  track_ends.push_back(track_end);	
 
-	
+	 
+
 	  CRT_theta_xz= atan2(dx,dz)*(180/TMath::Pi());
 	
 	
@@ -162,16 +169,21 @@ void Selection_crt()
 	  std::string index = Form("event%i_track%zu_angle%f",iEnt,c,modified_theta_yz_CRT); 	   
 	   event_display(track_start,track_end,index);
 
+	   if(modified_theta_yz_CRT>0){
+	     track_type.push_back(kBlue-6);
+	   }
+	   else if(modified_theta_yz_CRT<0){
+	     track_type.push_back(kTeal-5);
+	   }
 	}
       }// end of hit1/2 loop 	 
-
     }// end of required cuts if 
 
     //*************** Selection end ***************//
 
 
   } //Big loop of entries
-
+  event_display_multiple(track_starts,track_ends,track_type);
 
   //*************** Making pretty histograms ********************//
   
