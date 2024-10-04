@@ -23,11 +23,11 @@ bool Cut_Flat_Function(double x1, double y1,double z1,double x2, double y2,doubl
   return x && y && z;
 }
 bool Cut_Induction_Angle_yz(double theta_yz){
-  bool yz= (theta_yz>30 && theta_yz<45) || (theta_yz>-45 && theta_yz<-30);
+  bool yz= (theta_yz>55 && theta_yz<65) || (theta_yz>-65 && theta_yz<-55);
   return yz;
 }
 bool Cut_Track_Length(double length){
-  bool tracklength= (length> 800);
+  bool tracklength= (length>0 );
   return tracklength;
 }
 int Closest_Track(vector<double>* TPC_Angle, double CRT_Angle){
@@ -49,7 +49,7 @@ void Selection_induction()
   //******************************Accessing Tree and defining histograms*************************//
   gROOT->Reset();
   const TString SaveDir="/exp/sbnd/data/users/bethanym/wire_transparency/Selection_CRT";
-  // gStyle->SetOptStat(0); //Removing the stats box
+   gStyle->SetOptStat(0); //Removing the stats box
   gStyle->SetPalette(kCandy);
   TColor::InvertPalette(); 
   TFile  myFile("/sbnd/data/users/arellano/tpc_comm/production_231127_brazilCM/sbnd_crt_lifetime/trees/muon_hitdumper_NS_elifetime15ms_sce.root");
@@ -60,9 +60,9 @@ void Selection_induction()
   vector<double>*  ct_y2=0;
   vector<double>*  ct_z1=0;
   vector<double>*  ct_z2=0;
-  vector<double>*  chit_x=0;
-  vector<double>*  chit_y=0;
-  vector<double>*  chit_z=0;
+  vector<double>*  crt_space_point_x=0;
+  vector<double>*  crt_space_point_y=0;
+  vector<double>*  crt_space_point_z=0;
   vector<double>* muontrk_type=0;
   vector<double>*muontrk_theta_xz=0;
   vector<double>*muontrk_theta_yz=0;
@@ -73,9 +73,9 @@ void Selection_induction()
   myTree->SetBranchAddress("ct_y2", &ct_y2);
   myTree->SetBranchAddress("ct_z1", &ct_z1);
   myTree->SetBranchAddress("ct_z2", &ct_z2); 
-  myTree->SetBranchAddress("chit_x", &chit_x);
-  myTree->SetBranchAddress("chit_y", &chit_y);
-  myTree->SetBranchAddress("chit_z", &chit_z); 
+  myTree->SetBranchAddress("crt_space_point_x", &crt_space_point_x);
+  myTree->SetBranchAddress("crt_space_point_y", &crt_space_point_y);
+  myTree->SetBranchAddress("crt_space_point_z", &crt_space_point_z); 
   myTree->SetBranchAddress("muontrk_type", &muontrk_type);
   myTree->SetBranchAddress("muontrk_theta_xz", &muontrk_theta_xz);
   myTree->SetBranchAddress("muontrk_theta_yz", &muontrk_theta_yz);
@@ -85,8 +85,8 @@ void Selection_induction()
   TH2F *x_y_Hit_2 = new TH2F("xy3","xy3",70, -360, 360, 70, -360, 360);
   TH1F *TPC_Theta_xz =new TH1F("theta_xz_1", "theta_xz_1", 50, -90, 90);
   TH1F *TPC_Theta_yz =new TH1F("theta_yz_1", "theta_yz_1", 50, -90,90);
-  TH1F *CRT_Theta_xz =new TH1F("crttheta_xz_1", "crttheta_xz_1", 50, -100, 100);
-  TH1F *CRT_Theta_yz =new TH1F("crttheta_yz_1", "crttheta_yz_1", 50, -100,100);
+  TH1F *CRT_Theta_xz =new TH1F("crttheta_xz_1", "crttheta_xz_1", 50, -90, 90);
+  TH1F *CRT_Theta_yz =new TH1F("crttheta_yz_1", "crttheta_yz_1", 50, -90,90);
   TH2F *x_z_Hit_1 = new TH2F("xz1","xz1",70, -420, 420, 70, -200, 800);
   TH2F *x_z_Hit_2 = new TH2F("xz2","xz2",70, -420, 420, 70, -200, 800);
 

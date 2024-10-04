@@ -44,14 +44,30 @@ void DrawTrack(TCanvas *c1, TVector3* point1,TVector3* point2, int colour)
 }
 void event_display(TVector3 *track_start,TVector3 *track_end,std::string index){
 
-  TCanvas *c1 = new TCanvas("c1","");
+  TCanvas *c1 = new TCanvas("c1","",1200,1200);
 
   double  rmin[3] {-200,-200,0};
   double  rmax[3] {-200,200,500};
+  double CRT_south_min[3] {-200,360,-179.05};
+  double CRT_south_max[3] {-200,-360,-179.05};
+  double CRT_north_min[3]{-200,360,770.95};
+  double CRT_north_max[3]{-200,-360,770.95};
+  double CRT_flat_min[3]{-200,-378,-199.05};
+  double CRT_flat_max[3]{-200,-378,790.95};
+  double CRT_lower_top_min[3]{-200,640.12,-154.05};
+  double CRT_lower_top_max[3]{-200,640.12,745.95};
+  double CRT_higher_top_min[3]{-200,928.6,-154.05};
+  double CRT_higher_top_max[3]{-200,928.6,745.95};
 
   DrawCube(c1, rmin, rmax, kRed-6 );
+  DrawCube(c1, CRT_north_min, CRT_north_max, kOrange+8 );
+  DrawCube(c1, CRT_south_min, CRT_south_max, kOrange+8 );
+  DrawCube(c1, CRT_flat_min, CRT_flat_max, kOrange+8 );
+  DrawCube(c1, CRT_lower_top_min, CRT_lower_top_max, kOrange+8 );
+  DrawCube(c1, CRT_higher_top_min, CRT_higher_top_max, kOrange+8 );
 
   DrawTrack(c1,track_start,track_end,kBlue-6);
+  
 
   double arrow_start_x = - 0.7;
   double arrow_start_y = -0.8;
@@ -71,8 +87,8 @@ void event_display(TVector3 *track_start,TVector3 *track_end,std::string index){
   TView3D *view = (TView3D*) TView::CreateView(1);
 
   double c[3] = { 0, 0, 250 };
-  double s[3] = { 800, -800, 800 };
-  view->SetRange(-600, -600, -300, 600, 600, 900);
+  double s[3] = { 1000, -1000, 1000 };
+  view->SetRange(-600, -600, -600, 600, 600, 600);
   view->DefineViewDirection(s, c,
                             1, 0,
                             0, 1,
@@ -87,22 +103,37 @@ void event_display(TVector3 *track_start,TVector3 *track_end,std::string index){
 
   //  delete c1;                                                                                                                                                                                    
 }
-void DrawMultipleTracks(TCanvas *c1, vector<TVector3*>* point_1, vector<TVector3*>* point_2 , int colour) {
-  size_t num_tracks=point_1->size();
+void DrawMultipleTracks(TCanvas *c1, vector<TVector3*>& point_1, vector<TVector3*>& point_2 ,vector<int> colour) {
+  size_t num_tracks=point_1.size();
   for (size_t i = 0; i < num_tracks; ++i) {
-    DrawTrack(c1,point_1->at(i),point_2->at(i), kBlue-6);
+    DrawTrack(c1,point_1.at(i),point_2.at(i), colour.at(i));
   }
 }
 
 
-void event_display_multiple(vector<TVector3*>* track_start,vector<TVector3*>* track_end) {
+void event_display_multiple(vector<TVector3*>& track_start,vector<TVector3*>& track_end, vector<int> track_colour) {
+
   TCanvas *c1 = new TCanvas("c1","");
   double  rmin[3] {-200,-200,0};
   double  rmax[3] {-200,200,500};
-
+  double CRT_south_min[3] {-200,360,-179.05};
+  double CRT_south_max[3] {-200,-360,-179.05};
+  double CRT_north_min[3]{-200,360,770.95};
+  double CRT_north_max[3]{-200,-360,770.95};
+  double CRT_flat_min[3]{-200,-378,-199.05};
+  double CRT_flat_max[3]{-200,-378,790.95};
+  double CRT_lower_top_min[3]{-200,640.12,-154.05};
+  double CRT_lower_top_max[3]{-200,640.12,745.95};
+  double CRT_higher_top_min[3]{-200,928.6,-154.05};
+  double CRT_higher_top_max[3]{-200,928.6,745.95};
   DrawCube(c1, rmin, rmax, kRed-6 );
-
-  DrawMultipleTracks(c1, track_start, track_end, kBlue-6);
+  DrawCube(c1, CRT_north_min, CRT_north_max, kOrange+6 );
+  DrawCube(c1, CRT_south_min, CRT_south_max, kOrange+6 );
+  DrawCube(c1, CRT_flat_min, CRT_flat_max, kOrange+6 );
+  DrawCube(c1, CRT_lower_top_min, CRT_lower_top_max, kOrange+6 );
+  DrawCube(c1, CRT_higher_top_min, CRT_higher_top_max, kOrange+6 );
+ 
+  DrawMultipleTracks(c1, track_start, track_end, track_colour);
 
 
   double arrow_start_x = - 0.7;

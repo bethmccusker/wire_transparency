@@ -44,10 +44,10 @@ void Selection_collection()
   //******************************Accessing Tree and defining histograms*************************//
   gROOT->Reset();
   const TString SaveDir="/exp/sbnd/data/users/bethanym/wire_transparency/Selection_CRT";
-  // gStyle->SetOptStat(0); //Removing the stats box
+  gStyle->SetOptStat(0); //Removing the stats box
   gStyle->SetPalette(kCandy);
   TColor::InvertPalette(); 
-  TFile  myFile("/sbnd/data/users/arellano/tpc_comm/production_231127_brazilCM/sbnd_crt_lifetime/trees/muon_hitdumper_NS_elifetime15ms_sce.root");
+  TFile  myFile("/exp/sbnd/data/users/arellano/tpc_comm/production_231127_brazilCM/sbnd_crt_lifetime/trees/muon_hitdumper_NS_elifetime15ms_sce.root");
   TTree* myTree = (TTree*) myFile.Get("hitdumper/hitdumpertree");
   vector<double>*  ct_x1=0;
   vector<double>*  ct_x2=0;
@@ -78,10 +78,10 @@ void Selection_collection()
   gROOT->cd(0);
   TH2F *x_y_Hit_1 = new TH2F("xy1","xy1",70, -360, 360, 70, -360, 360);
   TH2F *x_y_Hit_2 = new TH2F("xy3","xy3",70, -360, 360, 70, -360, 360);
-  TH1F *TPC_Theta_xz =new TH1F("theta_xz_1", "theta_xz_1", 50, -90, 90);
-  TH1F *TPC_Theta_yz =new TH1F("theta_yz_1", "theta_yz_1", 50, -90,90);
-  TH1F *CRT_Theta_xz =new TH1F("crttheta_xz_1", "crttheta_xz_1", 50, -100, 100);
-  TH1F *CRT_Theta_yz =new TH1F("crttheta_yz_1", "crttheta_yz_1", 50, -100,100);
+  TH1F *TPC_Theta_xz =new TH1F("theta_xz_1", "theta_xz_1", 50, -30, 30);
+  TH1F *TPC_Theta_yz =new TH1F("theta_yz_1", "theta_yz_1", 50, -30,30);
+  TH1F *CRT_Theta_xz =new TH1F("crttheta_xz_1", "crttheta_xz_1", 50, -30, 30);
+  TH1F *CRT_Theta_yz =new TH1F("crttheta_yz_1", "crttheta_yz_1", 50, -30,30);
   TH2F *x_z_Hit_1 = new TH2F("xz1","xz1",70, -420, 420, 70, -200, 800);
   TH2F *x_z_Hit_2 = new TH2F("xz2","xz2",70, -420, 420, 70, -200, 800);
 
@@ -176,10 +176,10 @@ void Selection_collection()
 	std::string index = Form("event%i_track%zu_angle%f",iEnt,c,modified_theta_yz_CRT);
 	event_display(track_start,track_end,index);
 
-	if(modified_theta_yz_CRT>0){                                                                                                                                                                       
+	if(ct_z1->at(c)>ct_z2->at(c)){                                                                                                                                                                       
 	track_type.push_back(kBlue-6);
 	}                                                                                                                                                                                                    
-	else if(modified_theta_yz_CRT<0){                                                                                                                                                                     
+	else if(ct_z1->at(c)<ct_z2->at(c)){                                                                                                                                                                     
 	  track_type.push_back(kTeal-5);                                                                                                                                                                   
 	}                                                                                                                                                                                                     
      
@@ -199,6 +199,7 @@ void Selection_collection()
     }// end of CRT track loop                                                                                                                                                                                        
     
   } //Big loop of entries
+
   event_display_multiple(track_starts,track_ends,track_type);
 
 
@@ -206,7 +207,7 @@ void Selection_collection()
 
 
   //*************** Making pretty histograms ********************//
-  
+  /*
   TCanvas*  x_y_1 = new TCanvas ("xy1", "xy1", 900, 700);
  
   x_y_Hit_1->Draw("COLZ");
@@ -292,5 +293,5 @@ void Selection_collection()
   CRT_Theta_yz->SetLineColor(kRed-6);
 
   CRT_theta_yz->SaveAs(SaveDir + "/CRT_Theta_yz.pdf");
-
+*/
 }
